@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Brokenomo - Budget Tracker</title>
+  <style>
+    :root {
+      --dark: #1b4332;
+      --mid: #52b788;
+      --light: #d8f3dc;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial;
+      background: linear-gradient(to top right, var(--dark), var(--mid), var(--light));
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      color: #fff;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(8px);
+    }
+
+    .top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .profile {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+    }
+
+    .title {
+      flex: 1;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    input, select {
+      flex: 1;
+      padding: 10px;
+      border-radius: 10px;
+      border: none;
+      outline: none;
+      background: rgba(255, 255, 255, 0.06);
+      color: #fff;
+    }
+
+    .small {
+      flex: 0 0 120px;
+    }
+
+    .btn {
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--dark), var(--mid));
+      border: none;
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 8px;
+    }
+
+    .summary {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 10px 0;
+      font-weight: 700;
+    }
+
+    .progress-wrap {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      padding: 6px;
+    }
+
+    .progress {
+      height: 12px;
+      background: linear-gradient(90deg, var(--mid), var(--dark));
+      border-radius: 999px;
+      width: 0%;
+    }
+
+    .list {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .item {
+      background: rgba(255, 255, 255, 0.06);
+      padding: 10px;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .item .meta {
+      font-weight: 700;
+    }
+
+    .trash {
+      background: transparent;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 8px;
+    }
+
+    .muted {
+      opacity: 0.9;
+      font-size: 13px;
+    }
+
+    .link {
+      display: inline-block;
+      text-decoration: none;
+      color: #fff;
+      background: rgba(255, 255, 255, 0.06);
+      padding: 8px 10px;
+      border-radius: 10px;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="top">
+        <img src="Images for the ui\user.png" alt="profile" height="44px" width="44px">
+      </a>
+      <div class="title">Budget Tracker</div>
+      <div style="width:44px"></div>
+    </div>
+
+    <div class="muted">Set monthly budget (optional)</div>
+    <div class="form-row" style="margin-top:6px">
+      <input type="number" id="monthlyBudget" placeholder="Monthly budget (₱)" min="0">
+      <button class="btn" id="setBudgetBtn">Set</button>
+    </div>
+
+    <div class="summary">
+      <div>Total expenses: <span id="totalExpenses">₱0</span></div>
+      <div>Remaining: <span id="remaining">₱0</span></div>
+    </div>
+
+    <div class="progress-wrap" aria-hidden="true">
+      <div class="progress" id="spendBar"></div>
+    </div>
+
+    <hr style="border:none;height:12px;opacity:0.06">
+
+    <div class="muted">Add an expense</div>
+    <div class="form-row" style="margin-top:6px">
+      <input type="text" id="expenseName" placeholder="Expense name (e.g., Lunch)">
+      <input type="number" id="expenseAmount" placeholder="Amount (₱)" min="0" class="small">
+    </div>
+    <button class="btn" id="addBtn">Add Expense</button>
+
+    <div class="list" id="expenseList"></div>
+
+    <a class="link" href="Main Menu for brokenomo.html">← Back to Main Menu</a>
+  </div>
+
+  <script>
+    // LocalStorage keys
+    const BUDGET_KEY = "brokenomoBudget";
+    const EXP_KEY = "brokenomoExpenses";
+
+    let monthlyBudget = Number(localStorage.getItem(BUDGET_KEY) || 0);
+    let expenses = JSON.parse(localStorage.getItem(EXP_KEY) || "[]");
+
+    const totalExpensesEl = document.getElementById("totalExpenses");
+    const remainingEl = document.getElementById("remaining");
+    const spendBar = document.getElementById("spendBar");
+    const expenseList = document.getElementById("expenseList");
+    const monthlyBudgetInput = document.getElementById("monthlyBudget");
+    const expenseName = document.getElementById("expenseName");
+    const expenseAmount = document.getElementById("expenseAmount");
+
+    // Load saved budget
+    monthlyBudgetInput.value = monthlyBudget || "";
+
+    function format(n) {
+      return "₱" + Number(n).toLocaleString();
+    }
+
+    function calc() {
+      const total = expenses.reduce((sum, e) => sum + Number(e.amount), 0);
+      totalExpensesEl.textContent = format(total);
+
+      if (monthlyBudget > 0) {
+        const remaining = monthlyBudget - total;
+        remainingEl.textContent = format(remaining < 0 ? 0 : remaining);
+        const pct = Math.min(100, Math.round((total / monthlyBudget) * 100));
+        spendBar.style.width = pct + "%";
+      } else {
+        remainingEl.textContent = "—";
+        spendBar.style.width = "0%";
+      }
+    }
+
+    function save() {
+      localStorage.setItem(EXP_KEY, JSON.stringify(expenses));
+      localStorage.setItem(BUDGET_KEY, monthlyBudget);
+    }
+
+    function renderList() {
+      expenseList.innerHTML = "";
+
+      if (expenses.length === 0) {
+        expenseList.innerHTML = '<div class="muted">No expenses yet. Add one above.</div>';
+        return;
+      }
+
+      expenses.slice().reverse().forEach((e, i) => {
+        const div = document.createElement("div");
+        div.className = "item";
+
+        const meta = document.createElement("div");
+        meta.innerHTML = `
+          <div class="meta">${e.name}</div>
+          <div class="muted">₱${Number(e.amount).toLocaleString()}</div>
+        `;
+
+        const right = document.createElement("div");
+        const del = document.createElement("button");
+        del.className = "trash";
+        del.innerHTML = "🗑";
+        del.title = "Delete";
+
+        del.onclick = () => {
+          const realIndex = expenses.length - 1 - i; // Correct index
+          expenses.splice(realIndex, 1);
+          save();
+          calc();
+          renderList();
+        };
+
+        right.appendChild(del);
+        div.appendChild(meta);
+        div.appendChild(right);
+        expenseList.appendChild(div);
+      });
+    }
+
+    document.getElementById("setBudgetBtn").onclick = () => {
+      const val = Number(monthlyBudgetInput.value);
+      if (isNaN(val) || val < 0) {
+        alert("Enter a valid budget amount.");
+        return;
+      }
+      monthlyBudget = val;
+      save();
+      calc();
+    };
+
+    document.getElementById("addBtn").onclick = () => {
+      const name = expenseName.value.trim();
+      const amt = Number(expenseAmount.value);
+
+      if (!name || isNaN(amt) || amt <= 0) {
+        alert("Enter a valid expense name and amount.");
+        return;
+      }
+
+      expenses.push({ name, amount: amt, created: new Date().toISOString() });
+      expenseName.value = "";
+      expenseAmount.value = "";
+      save();
+      calc();
+      renderList();
+    };
+
+    // Initialize
+    calc();
+    renderList();
+  </script>
+</body>
+</html>
+

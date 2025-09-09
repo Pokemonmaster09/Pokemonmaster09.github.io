@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Brokenomo - Sign Up</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: linear-gradient(to top right, #1b4332, #52b788, #d8f3dc);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 400px;
+      background-color: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(8px);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .logo {
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+
+    .logo img {
+      width: 120px;
+      height: auto;
+      display: block;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin: 10px 0 5px;
+      font-weight: bold;
+      color: #fff;
+      text-align: center;
+    }
+
+    p {
+      font-size: 16px;
+      color: #f1f1f1;
+      margin-bottom: 25px;
+      font-weight: 500;
+      text-align: center;
+      padding: 0 10px;
+    }
+
+    .input-box {
+      width: 100%;
+      margin-bottom: 15px;
+    }
+
+    .input-box input {
+      width: 100%;
+      padding: 14px;
+      border-radius: 6px;
+      border: none;
+      font-size: 16px;
+      box-sizing: border-box;
+      outline: none;
+    }
+
+    .btn {
+      display: inline-block;
+      width: 100%;
+      text-align: center;
+      padding: 14px;
+      margin-top: 10px;
+      background: linear-gradient(135deg, #1b4332, #52b788);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 8px;
+      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      transition: all 0.25s ease-in-out;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background: linear-gradient(135deg, #14532d, #40916c);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    }
+
+    .footer {
+      font-size: 12px;
+      color: #eee;
+      text-align: center;
+      margin-top: 40px;
+      margin-bottom: 10px;
+      line-height: 1.4;
+      padding: 0 15px;
+    }
+
+    .footer a {
+      color: #d8f3dc;
+      text-decoration: none;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <img src="https://img.icons8.com/ios-filled/150/ffffff/money.png" alt="logo">
+    </div>
+    <h1>BROKENOMO</h1>
+    <p>Saving you from broke decisions</p>
+    
+    <div class="input-box">
+      <input type="text" id="username" placeholder="Enter your name">
+    </div>
+    <button class="btn" onclick="continueToProfile()">Continue</button>
+
+    <div class="footer">
+      By continuing, you agree to our 
+      <a href="#">Terms of Service</a> and 
+      <a href="#">Privacy Policy</a>
+    </div>
+  </div>
+
+  <script>
+    function continueToProfile() {
+      const name = document.getElementById("username").value.trim();
+      if (name === "") {
+        alert("Please enter your name before continuing.");
+        return;
+      }
+      // Save name to localStorage
+      localStorage.setItem("brokenomoUser", name);
+      // Redirect to profile page
+      window.location.href = "Main Menu for brokenomo.html"; // adjust filename if needed
+    }
+  </script>
+</body>
+</html>
+
+

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Brokenomo - Tips & Facts</title>
+  <style>
+    :root {
+      --dark: #1b4332;
+      --mid: #52b788;
+      --light: #d8f3dc;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial;
+      background: linear-gradient(to top right, var(--dark), var(--mid), var(--light));
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      color: #fff;
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: 420px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(8px);
+    }
+
+    .top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .profile {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+    }
+
+    .title {
+      flex: 1;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .tip-box {
+      background: rgba(255, 255, 255, 0.06);
+      padding: 18px;
+      border-radius: 12px;
+      text-align: center;
+      font-weight: 700;
+      min-height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .controls {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 10px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--dark), var(--mid));
+      border: none;
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .muted {
+      opacity: 0.9;
+      margin-top: 10px;
+    }
+
+    .fav-list {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .fav-item {
+      background: rgba(255, 255, 255, 0.06);
+      padding: 10px;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .fav-item button {
+      background: transparent;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+
+    .fav-item button:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .link {
+      display: inline-block;
+      text-decoration: none;
+      color: #fff;
+      background: rgba(255, 255, 255, 0.06);
+      padding: 8px 10px;
+      border-radius: 10px;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <a href="Brokenomo updated\Profile summary for brokenomo.html" class="profile">
+        <img src="https://img.icons8.com/ios-filled/100/ffffff/user-male-circle.png" alt="profile">
+      </a>
+      <div class="title">Tips & Facts</div>
+      <div style="width:44px"></div>
+    </div>
+
+    <div id="tipBox" class="tip-box">Loading...</div>
+
+    <div class="controls">
+      <button class="btn" id="prev">← Previous</button>
+      <button class="btn" id="next">Next →</button>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn" id="shuffleBtn" style="flex:0 0 36%">Shuffle</button>
+      <button class="btn" id="favBtn" style="flex:0 0 36%">☆ Favorite</button>
+      <button class="btn" id="copyBtn" style="flex:0 0 28%">Copy</button>
+    </div>
+
+    <div class="muted" id="tipCounter" style="text-align:center;margin-top:10px"></div>
+
+    <div class="muted" style="margin-top:12px">Favorites</div>
+    <div id="favList" class="fav-list"></div>
+
+    <a class="link" href="Brokenomo updated\Main Menu for brokenomo.html">← Back to Main Menu</a>
+  </div>
+
+  <script>
+    const tips = [
+      "Start by tracking your spending — you can’t improve what you don’t measure.",
+      "Build an emergency fund with 3–6 months of expenses to cover surprises.",
+      "Pay yourself first: save before discretionary spending.",
+      "Use a budget to plan, not to restrict — it shows your priorities.",
+      "Avoid impulse purchases: wait 24 hours before buying non-essential items.",
+      "High-interest debt (like credit cards) should be prioritized for repayment.",
+      "Automate savings and bill payments to reduce forgetting and late fees.",
+      "Invest early — compound interest grows wealth over time.",
+      "Diversify investments to reduce risk across different assets.",
+      "Read a little about personal finance daily — small habits compound too."
+    ];
+
+    const TIP_KEY = "brokenomoTipFavs";
+    let index = 0;
+    let favs = JSON.parse(localStorage.getItem(TIP_KEY) || "[]");
+
+    const tipBox = document.getElementById("tipBox");
+    const tipCounter = document.getElementById("tipCounter");
+    const favList = document.getElementById("favList");
+    const favBtn = document.getElementById("favBtn");
+
+    function renderTip() {
+      tipBox.textContent = tips[index];
+      tipCounter.textContent = `${index + 1} / ${tips.length}`;
+      favBtn.textContent = favs.includes(tips[index]) ? "★ Favorited" : "☆ Favorite";
+    }
+
+    function showFavs() {
+      favList.innerHTML = "";
+
+      if (favs.length === 0) {
+        favList.innerHTML = '<div class="muted">No favorites yet.</div>';
+        return;
+      }
+
+      favs.slice().reverse().forEach(t => {
+        const d = document.createElement("div");
+        d.className = "fav-item";
+        d.textContent = t;
+
+        const rem = document.createElement("button");
+        rem.textContent = "Remove";
+        rem.onclick = () => {
+          favs = favs.filter(x => x !== t);
+          localStorage.setItem(TIP_KEY, JSON.stringify(favs));
+          showFavs();
+          renderTip();
+        };
+
+        d.appendChild(rem);
+        favList.appendChild(d);
+      });
+    }
+
+    document.getElementById("next").onclick = () => {
+      index = (index + 1) % tips.length;
+      renderTip();
+    };
+
+    document.getElementById("prev").onclick = () => {
+      index = (index - 1 + tips.length) % tips.length;
+      renderTip();
+    };
+
+    document.getElementById("shuffleBtn").onclick = () => {
+      index = Math.floor(Math.random() * tips.length);
+      renderTip();
+    };
+
+    favBtn.onclick = () => {
+      const t = tips[index];
+      if (!favs.includes(t)) {
+        favs.push(t);
+      } else {
+        favs = favs.filter(x => x !== t);
+      }
+      localStorage.setItem(TIP_KEY, JSON.stringify(favs));
+      showFavs();
+      renderTip();
+    };
+
+    document.getElementById("copyBtn").onclick = () => {
+      navigator.clipboard?.writeText(tips[index]).then(
+        () => alert("Tip copied to clipboard!"),
+        () => alert("Copy failed.")
+      );
+    };
+
+    // Initialize
+    showFavs();
+    renderTip();
+  </script>
+</body>
+</html>
