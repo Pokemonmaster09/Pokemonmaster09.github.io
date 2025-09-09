@@ -30,68 +30,27 @@
       backdrop-filter:blur(8px);
       position:relative;
     }
-
-    /* header with profile icon */
-    .top {
-      display:flex;
-      align-items:center;
-      gap:10px;
-      margin-bottom:8px;
-    }
-    .profile {
-      width:44px;height:44px;border-radius:50%;overflow:hidden;border:2px solid rgba(255,255,255,0.4);
-      background:rgba(255,255,255,0.12); display:flex;align-items:center;justify-content:center;
-    }
+    .top { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+    .profile { width:44px;height:44px;border-radius:50%;overflow:hidden;border:2px solid rgba(255,255,255,0.4); display:flex;align-items:center;justify-content:center; }
     .profile img{width:100%;height:100%;object-fit:cover}
     .title {flex:1;text-align:center;font-weight:700;font-size:18px}
-    .user {
-      font-size:13px;
-      opacity:0.95;
-      text-align:center;
-      margin-bottom:10px;
-    }
-
-    .card {
-      background:rgba(255,255,255,0.12);
-      border-radius:14px;
-      padding:18px;
-      min-height:160px;
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-      text-align:center;
-      margin-bottom:12px;
-    }
+    .user { font-size:13px; opacity:0.95; text-align:center; margin-bottom:10px; }
+    .card { background:rgba(255,255,255,0.12); border-radius:14px; padding:18px; min-height:160px; display:flex; flex-direction:column; justify-content:center; text-align:center; margin-bottom:12px; }
     .qnum{font-size:13px;opacity:0.9;margin-bottom:8px}
     .question{font-size:18px;font-weight:700;line-height:1.3}
     .options{display:flex;flex-direction:column;gap:10px;margin-top:14px}
-    .opt {
-      background:rgba(255,255,255,0.08);
-      padding:12px 10px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);
-      text-align:left;font-weight:600;cursor:pointer;
-      transition:transform .12s ease,background .12s ease,box-shadow .12s;
-    }
+    .opt { background:rgba(255,255,255,0.08); padding:12px 10px;border-radius:10px;border:1px solid rgba(255,255,255,0.06); text-align:left;font-weight:600;cursor:pointer; transition:transform .12s ease,background .12s ease,box-shadow .12s;}
     .opt:hover{transform:translateY(-3px); box-shadow:0 8px 20px rgba(0,0,0,0.2)}
     .opt.correct{background:linear-gradient(90deg,var(--mid),var(--dark)); color:#fff; box-shadow:0 6px 18px rgba(0,0,0,0.28)}
     .opt.wrong{background:rgba(255,80,80,0.15); color:#fff; box-shadow:0 6px 18px rgba(0,0,0,0.28)}
     .opt.disabled{opacity:0.8;cursor:default}
-
     .controls{display:flex;gap:10px;margin-top:12px}
-    .btn{
-      flex:1;padding:12px;border-radius:10px;text-align:center;font-weight:700;color:#fff;border:none;cursor:pointer;
-      background:linear-gradient(135deg,var(--dark),var(--mid)); box-shadow:0 6px 18px rgba(0,0,0,0.2)
-    }
+    .btn{ flex:1;padding:12px;border-radius:10px;text-align:center;font-weight:700;color:#fff;border:none;cursor:pointer; background:linear-gradient(135deg,var(--dark),var(--mid)); box-shadow:0 6px 18px rgba(0,0,0,0.2)}
     .btn.secondary{background:rgba(255,255,255,0.12); color:#fff; font-weight:700}
     .btn:active{transform:translateY(1px)}
-
-    /* result */
-    .result {
-      text-align:center;padding:18px;border-radius:12px;background:rgba(255,255,255,0.06);
-      margin-top:12px;
-    }
+    .result { text-align:center;padding:18px;border-radius:12px;background:rgba(255,255,255,0.06); margin-top:12px; }
     .scorebig{font-size:34px;font-weight:800}
     .muted{opacity:0.9;font-size:14px;margin-top:6px}
-
     .bottom-row{display:flex;justify-content:center;margin-top:14px;gap:10px}
     .link{display:inline-block;color:#fff;text-decoration:none;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.08)}
   </style>
@@ -105,20 +64,16 @@
       <div class="title">Quizzes</div>
       <div style="width:44px"></div>
     </div>
-
     <div class="user" id="userGreeting">Hi —</div>
 
     <div class="card">
       <div class="qnum" id="qnum">Question 1 / 10</div>
       <div class="question" id="questionText">...</div>
-
       <div class="options" id="optionsWrap"></div>
-
-      <div class="controls" style="display:none" id="afterSelect">
+      <div class="controls" id="afterSelect" style="display:none">
         <button class="btn secondary" id="prevBtn">← Previous</button>
         <button class="btn" id="nextBtn">Next →</button>
       </div>
-
       <div class="result" id="resultBox" style="display:none"></div>
     </div>
 
@@ -129,11 +84,9 @@
   </div>
 
   <script>
-    // Load username
     const savedName = localStorage.getItem("brokenomoUser") || "Learner";
     document.getElementById("userGreeting").textContent = `Hi ${savedName}! Try this quick quiz.`;
 
-    // Quiz data (10)
     const quizData = [
       {q:"Which financial statement shows assets, liabilities, and equity?", a:["Income statement","Balance sheet","Cash flow statement","Statement of retained earnings"], correct:1},
       {q:"What is revenue?", a:["Owner's investment","Money earned from sales","Money owed to suppliers","A type of expense"], correct:1},
@@ -147,7 +100,8 @@
       {q:"Why track expenses regularly?", a:["So you spend more","To find saving opportunities","To increase debts","To avoid budgeting"], correct:1}
     ];
 
-    let current = 0, score = 0, answered=false;
+    let current=0, score=0, answered=false, reviewMode=false;
+
     const qnumEl = document.getElementById("qnum");
     const questionText = document.getElementById("questionText");
     const optionsWrap = document.getElementById("optionsWrap");
@@ -157,46 +111,47 @@
     const resultBox = document.getElementById("resultBox");
     const restartLink = document.getElementById("restartLink");
 
-    function render(){
+    function renderQuestion(){
       const q = quizData[current];
       qnumEl.textContent = `Question ${current+1} / ${quizData.length}`;
       questionText.textContent = q.q;
       optionsWrap.innerHTML = "";
       resultBox.style.display="none";
-      afterSelect.style.display="none";
-      answered=false;
+      afterSelect.style.display = reviewMode ? "flex" : "none";
+      answered = false;
 
-      q.a.forEach((optText,i)=>{
+      q.a.forEach((optText, i)=>{
         const btn = document.createElement("button");
-        btn.className="opt";
+        btn.className = "opt";
         btn.innerText = String.fromCharCode(65+i)+". "+optText;
-        btn.onclick = ()=> selectOption(btn,i);
+        if(!reviewMode){
+          btn.onclick = ()=> selectOption(btn,i);
+        } else if(i===q.correct){
+          btn.classList.add("correct");
+        }
         optionsWrap.appendChild(btn);
       });
-      // Prev button availability
+
       prevBtn.disabled = current===0;
-      prevBtn.style.opacity = current===0?0.5:1;
+      prevBtn.style.opacity = current===0 ? 0.5 : 1;
     }
 
     function selectOption(btn, index){
       if(answered) return;
       answered=true;
-      // disable all options
       const all = [...optionsWrap.children];
-      all.forEach(b=> b.classList.add("disabled"));
+      all.forEach(b=>b.classList.add("disabled"));
       const correctIndex = quizData[current].correct;
-      if(index === correctIndex){
+      if(index===correctIndex){
         btn.classList.add("correct");
         score++;
         showFeedback(true);
       } else {
         btn.classList.add("wrong");
-        // highlight correct
-        all.forEach((b,i)=> { if(i===correctIndex) b.classList.add("correct"); });
+        all.forEach((b,i)=>{ if(i===correctIndex) b.classList.add("correct"); });
         showFeedback(false);
       }
       afterSelect.style.display="flex";
-      // show result text
     }
 
     function showFeedback(isCorrect){
@@ -209,18 +164,21 @@
       }
     }
 
-    nextBtn.addEventListener("click", ()=>{
+    nextBtn.onclick = ()=>{
       if(current < quizData.length-1){
         current++;
-        render();
-      } else {
+        renderQuestion();
+      } else if(!reviewMode){
         showResults();
       }
-    });
+    };
 
-    prevBtn.addEventListener("click", ()=>{
-      if(current>0){ current--; render(); }
-    });
+    prevBtn.onclick = ()=>{
+      if(current>0){
+        current--;
+        renderQuestion();
+      }
+    };
 
     function showResults(){
       optionsWrap.innerHTML = "";
@@ -237,49 +195,20 @@
 
     function reviewAnswers(){
       current = 0;
-      score = 0;
-      // Show each question with correct highlighted, disable selection
-      optionsWrap.innerHTML = "";
-      questionText.textContent = "Review mode — answers shown";
-      qnumEl.textContent = `Question ${current+1} / ${quizData.length}`;
-      renderReview();
+      reviewMode = true;
+      renderQuestion();
     }
 
-    function renderReview(){
-      const q = quizData[current];
-      qnumEl.textContent = `Question ${current+1} / ${quizData.length}`;
-      questionText.textContent = q.q;
-      optionsWrap.innerHTML = "";
-      q.a.forEach((opt,i)=>{
-        const b = document.createElement("div");
-        b.className="opt disabled";
-        if(i===q.correct) b.classList.add("correct");
-        b.textContent = String.fromCharCode(65+i)+". "+opt;
-        optionsWrap.appendChild(b);
-      });
-      afterSelect.style.display="flex";
-      nextBtn.onclick = ()=>{
-        if(current < quizData.length-1){ current++; renderReview(); } else {
-          // reset nextBtn behavior
-          nextBtn.onclick = defaultNext;
-          prevBtn.onclick = ()=>{ if(current>0){ current--; renderReview(); } };
-          // reset
-        }
-      };
-      prevBtn.onclick = ()=>{
-        if(current>0){ current--; renderReview(); }
-      };
-    }
-
-    function defaultNext(){ if(current < quizData.length-1){ current++; render(); } else showResults(); }
-
-    // retake
-    restartLink.addEventListener("click", (e)=>{ e.preventDefault(); current=0; score=0; render(); });
+    restartLink.addEventListener("click", e=>{
+      e.preventDefault();
+      current=0;
+      score=0;
+      reviewMode=false;
+      renderQuestion();
+    });
 
     // initial
-    render();
-    // set default next behavior
-    nextBtn.onclick = defaultNext;
+    renderQuestion();
   </script>
 </body>
 </html>
