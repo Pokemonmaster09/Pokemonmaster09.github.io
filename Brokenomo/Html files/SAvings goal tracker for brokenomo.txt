@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Brokenomo - Savings Goal</title>
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial;
+      background: linear-gradient(to top right, var(--dark), var(--mid), var(--light));
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      color: #fff;
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: 420px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(8px);
+    }
+
+    .top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .profile {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+    }
+
+    .title {
+      flex: 1;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .muted {
+      opacity: 0.95;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      border: none;
+      background: rgba(255, 255, 255, 0.06);
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .small {
+      flex: 0 0 120px;
+    }
+
+    .btn {
+      padding: 10px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--dark), var(--mid));
+      border: none;
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .progress-wrap {
+      background: rgba(255, 255, 255, 0.06);
+      padding: 8px;
+      border-radius: 999px;
+      margin: 10px 0;
+    }
+
+    .progress {
+      height: 14px;
+      background: linear-gradient(90deg, var(--mid), var(--dark));
+      border-radius: 999px;
+      width: 0%;
+    }
+
+    .list {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .entry {
+      background: rgba(255, 255, 255, 0.06);
+      padding: 10px;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .link {
+      display: inline-block;
+      text-decoration: none;
+      color: #fff;
+      background: rgba(255, 255, 255, 0.06);
+      padding: 8px 10px;
+      border-radius: 10px;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <a href="profile.html" class="profile">
+        <img src="https://img.icons8.com/ios-filled/100/ffffff/user-male-circle.png" alt="Profile">
+      </a>
+      <div class="title">Savings Goal</div>
+      <div style="width:44px"></div>
+    </div>
+
+    <div class="muted">Create a savings goal</div>
+    <input id="goalName" placeholder="Goal name (e.g., Emergency Fund)">
+    <input id="goalTarget" type="number" placeholder="Target amount (₱)" min="0">
+
+    <div class="row">
+      <input id="contribAmount" type="number" placeholder="Add amount (₱)" min="0" class="small">
+      <button class="btn" id="createBtn">Create / Update</button>
+      <button class="btn" id="addContribBtn">Add</button>
+    </div>
+
+    <div id="statusWrap" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+        <div>
+          <strong id="gName"></strong>
+          <div class="muted" id="gTarget"></div>
+        </div>
+        <div style="text-align:right">
+          <div class="muted">Saved</div>
+          <div id="gSaved">₱0</div>
+        </div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress" id="goalBar"></div>
+      </div>
+      <div class="muted" id="gPercent">0% reached</div>
+
+      <div class="muted" style="margin-top:10px">Contributions</div>
+      <div class="list" id="contribList"></div>
+
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn" id="resetBtn" style="background:rgba(255,255,255,0.12)">Reset Goal</button>
+        <a class="link" href="profile.html">← Back to Profile</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const GOAL_KEY = "brokenomoSavingsGoal";
+    let data = JSON.parse(localStorage.getItem(GOAL_KEY) || "null");
+
+    const goalNameInput = document.getElementById("goalName");
+    const goalTargetInput = document.getElementById("goalTarget");
+    const contribAmount = document.getElementById("contribAmount");
+    const createBtn = document.getElementById("createBtn");
+    const addContribBtn = document.getElementById("addContribBtn");
+    const statusWrap = document.getElementById("statusWrap");
+    const gName = document.getElementById("gName");
+    const gTarget = document.getElementById("gTarget");
+    const gSaved = document.getElementById("gSaved");
+    const goalBar = document.getElementById("goalBar");
+    const gPercent = document.getElementById("gPercent");
+    const contribList = document.getElementById("contribList");
+    const resetBtn = document.getElementById("resetBtn");
+
+    function save() {
+      localStorage.setItem(GOAL_KEY, JSON.stringify(data));
+    }
+
+    function render() {
+      if (!data) {
+        statusWrap.style.display = "none";
+        return;
+      }
+      statusWrap.style.display = "block";
+
+      gName.textContent = data.name;
+      gTarget.textContent = `Target: ₱${Number(data.target).toLocaleString()}`;
+
+      const total = data.contributions.reduce((sum, c) => sum + Number(c.amount), 0);
+      gSaved.textContent = `₱${total.toLocaleString()}`;
+
+      const pct = data.target > 0 ? Math.min(100, Math.round((total / data.target) * 100)) : 0;
+      goalBar.style.width = pct + "%";
+      gPercent.textContent = `${pct}% reached (${data.contributions.length} entries)`;
+
+      contribList.innerHTML = "";
+      if (data.contributions.length === 0) {
+        contribList.innerHTML = '<div class="muted">No contributions yet.</div>';
+      }
+
+      data.contributions.slice().reverse().forEach((c, i) => {
+        const entry = document.createElement("div");
+        entry.className = "entry";
+        entry.innerHTML = `
+          <div>${c.note || "Contribution"}</div>
+          <div>
+            ₱${Number(c.amount).toLocaleString()} 
+            <button 
+              style="margin-left:8px;background:transparent;border:none;color:#fff;cursor:pointer" 
+              title="Delete" data-index="${i}">
+              🗑
+            </button>
+          </div>`;
+        contribList.appendChild(entry);
+
+        entry.querySelector("button").onclick = () => {
+          const realIndex = data.contributions.length - 1 - i;
+          data.contributions.splice(realIndex, 1);
+          save();
+          render();
+        };
+      });
+    }
+
+    createBtn.onclick = () => {
+      const name = goalNameInput.value.trim();
+      const target = Number(goalTargetInput.value);
+
+      if (!name || isNaN(target) || target <= 0) {
+        alert("Enter a valid goal name and target amount.");
+        return;
+      }
+
+      if (!data) {
+        data = { name, target, contributions: [] };
+      } else {
+        data.name = name;
+        data.target = target;
+      }
+
+      save();
+      render();
+    };
+
+    addContribBtn.onclick = () => {
+      if (!data) {
+        alert("Create a goal first.");
+        return;
+      }
+
+      const amt = Number(contribAmount.value);
+      if (isNaN(amt) || amt <= 0) {
+        alert("Enter a positive amount.");
+        return;
+      }
+
+      data.contributions.push({
+        amount: amt,
+        note: `Added ${new Date().toLocaleDateString()}`,
+        date: new Date().toISOString()
+      });
+
+      contribAmount.value = "";
+      save();
+      render();
+    };
+
+    resetBtn.onclick = () => {
+      if (!confirm("Reset goal and clear contributions?")) return;
+      data = null;
+      localStorage.removeItem(GOAL_KEY);
+      render();
+    };
+
+    // Initial load
+    if (data) {
+      goalNameInput.value = data.name;
+      goalTargetInput.value = data.target;
+    }
+    render();
+  </script>
+</body>
+</html>
